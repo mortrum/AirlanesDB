@@ -13,6 +13,6 @@ public class Country {
 
     private Integer id;
     private String name;
-    private List<Airport> airportsList;
+    private List<Airport> airports;
 
 }

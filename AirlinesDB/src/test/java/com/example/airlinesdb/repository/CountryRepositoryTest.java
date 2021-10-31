@@ -13,6 +13,8 @@ import org.jooq.tools.jdbc.MockDataProvider;
 import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Connection;
@@ -26,6 +28,23 @@ import static com.google.common.truth.Truth.assertThat;
 @SpringBootTest
 public class CountryRepositoryTest {
 
+    private MockDataProvider provider;
+
+    @BeforeEach
+    @SneakyThrows
+    void init() {
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        DSLContext dsl = DSL.using(connection);
+        Repository.db.init(dsl);
+    }
+
+    @AfterEach
+    @SneakyThrows
+    void tearDown() {
+        Connection mockConnection = new MockConnection(provider);
+        DSLContext dsl = DSL.using(mockConnection);
+    }
+
     @Test
     @SneakyThrows
     public void insertTest() {
@@ -36,14 +55,10 @@ public class CountryRepositoryTest {
         System.out.println("Country insert test.");
         System.out.println("Name: " + name1);
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+       provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
-
                 Country country = new Country();
                 country.setId(1000);
                 country.setName(name1);
@@ -57,8 +72,6 @@ public class CountryRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
@@ -73,14 +86,12 @@ public class CountryRepositoryTest {
         System.out.println("Name: " + name1);
         System.out.println("Editing to: " + name2);
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
 
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
+
                 Country country = new Country();
                 country.setId(1000);
                 country.setName(name1);
@@ -96,8 +107,7 @@ public class CountryRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
+
     }
 
     @Test
@@ -110,13 +120,10 @@ public class CountryRepositoryTest {
         System.out.println("Country find test.");
         System.out.println("Name: " + name1);
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Country country = new Country();
                 country.setId(1000);
@@ -131,21 +138,16 @@ public class CountryRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void findAllTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 List<Country> result = Repository.db.countries.findAll(Countries.COUNTRIES.ID.eq(2));
                 assertThat(result).hasSize(1);
@@ -155,20 +157,15 @@ public class CountryRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void deleteTest() {
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Repository.db.countries.delete(1);
                 assertThat(Repository.db.countries.find(1)).isNull();
@@ -178,7 +175,5 @@ public class CountryRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 }

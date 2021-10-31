@@ -41,7 +41,7 @@ public class CountryRepository implements CrudRepository<Country>{
                 .fetchAny()
                 .map(r -> {
                     Country country = r.into(Country.class);
-                    country.setAirportsList(Repository.db.airports.findAll(Airports.AIRPORTS.COUNTRY_ID.eq(country.getId())));
+                    country.setAirports(Repository.db.airports.findAll(Airports.AIRPORTS.COUNTRY_ID.eq(country.getId())));
                     return country;
                 });
     }
@@ -53,7 +53,7 @@ public class CountryRepository implements CrudRepository<Country>{
                 .fetchAny()
                 .map( record -> {
                     Country country = record.into(Country.class);
-                    country.setAirportsList(Repository.db.airports.findAll(Airports.AIRPORTS.COUNTRY_ID.eq(country.getId())));
+                    country.setAirports(Repository.db.airports.findAll(Airports.AIRPORTS.COUNTRY_ID.eq(country.getId())));
                     countries.add(country);
                     return country;
                 });

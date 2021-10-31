@@ -40,7 +40,7 @@ public class AirportRepository implements CrudRepository<Airport>{
                 .fetchAny()
                 .map(r -> {
                     Airport airport = r.into(Airport.class);
-                    airport.setFlightList(Repository.db.flights.findAll(Flights.FLIGHTS.DEPARTURE_AIRPORT_ID.eq(airport.getId())));
+                    airport.setFlights(Repository.db.flights.findAll(Flights.FLIGHTS.DEPARTURE_AIRPORT_ID.eq(airport.getId())));
                     return airport;
                 });
     }
@@ -52,7 +52,7 @@ public class AirportRepository implements CrudRepository<Airport>{
                 .fetchAny()
                 .map( record -> {
                     Airport airport = record.into(Airport.class);
-                    airport.setFlightList(Repository.db.flights.findAll(Flights.FLIGHTS.DEPARTURE_AIRPORT_ID.eq(airport.getId())));
+                    airport.setFlights(Repository.db.flights.findAll(Flights.FLIGHTS.DEPARTURE_AIRPORT_ID.eq(airport.getId())));
                     airports.add(airport);
                     return airport;
                 });

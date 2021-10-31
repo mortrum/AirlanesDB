@@ -14,11 +14,14 @@ import org.jooq.tools.jdbc.MockDataProvider;
 import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.example.airlinesdb.Constants.*;
@@ -27,23 +30,37 @@ import static com.google.common.truth.Truth.assertThat;
 @SpringBootTest
 public class FlightRepositoryTest {
 
+    private MockDataProvider provider;
+
+    @BeforeEach
+    @SneakyThrows
+    void init() {
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        DSLContext dsl = DSL.using(connection);
+        Repository.db.init(dsl);
+    }
+
+    @AfterEach
+    @SneakyThrows
+    void tearDown() {
+        Connection mockConnection = new MockConnection(provider);
+        DSLContext dsl = DSL.using(mockConnection);
+    }
+
     @Test
     @SneakyThrows
     public void insertTest() {
 
         System.out.println("Flight insert test.");
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Flight flight = new Flight();
                 flight.setId(1000);
-                flight.setDate(System.currentTimeMillis());
+                flight.setDate(LocalDate.now());
                 flight.setDepartureAirportId(0);
                 flight.setDestinationAirportId(1);
                 Repository.db.flights.insert(flight);
@@ -56,25 +73,20 @@ public class FlightRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void updateTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
 
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
                 Flight flight = new Flight();
                 flight.setId(1000);
-                flight.setDate(System.currentTimeMillis());
+                flight.setDate(LocalDate.now());
                 flight.setDepartureAirportId(0);
                 flight.setDestinationAirportId(1);
                 Repository.db.flights.insert(flight);
@@ -89,25 +101,20 @@ public class FlightRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void findTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Flight flight = new Flight();
                 flight.setId(1000);
-                flight.setDate(System.currentTimeMillis());
+                flight.setDate(LocalDate.now());
                 flight.setDepartureAirportId(0);
                 flight.setDestinationAirportId(1);
                 Repository.db.flights.insert(flight);
@@ -120,21 +127,15 @@ public class FlightRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void findAllTest() {
-
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 List<Flight> result = Repository.db.flights.findAll(Flights.FLIGHTS.AIRPLANE_ID.eq(2));
                 assertThat(result).hasSize(1);
@@ -144,20 +145,15 @@ public class FlightRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void deleteTest() {
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Repository.db.flights.delete(1);
                 assertThat(Repository.db.flights.find(1)).isNull();
@@ -167,7 +163,5 @@ public class FlightRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 }

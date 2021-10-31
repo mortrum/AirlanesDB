@@ -12,5 +12,6 @@ public class Pilot {
     private Integer id;
     private String name;
     private Integer flightHours;
+    private Boolean isWorking;
 
 }

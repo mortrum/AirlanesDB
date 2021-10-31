@@ -22,7 +22,7 @@ public class PilotRepository implements CrudRepository<Pilot> {
     @Override
     public void insert(Pilot object) {
         dsl.insertInto(Pilots.PILOTS)
-                .values(object.getId(), object.getName(), object.getFlightHours())
+                .values(object.getId(), object.getName(), object.getFlightHours(), object.getIsWorking())
                 .returning()
                 .fetchOne();
     }

@@ -12,6 +12,8 @@ import org.jooq.tools.jdbc.MockDataProvider;
 import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,19 +24,34 @@ import static com.example.airlinesdb.Constants.*;
 import static com.google.common.truth.Truth.assertThat;
 
 public class PilotRepositoryTest {
+
+    private MockDataProvider provider;
+
+    @BeforeEach
+    @SneakyThrows
+    void init() {
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        DSLContext dsl = DSL.using(connection);
+        Repository.db.init(dsl);
+    }
+
+    @AfterEach
+    @SneakyThrows
+    void tearDown() {
+        Connection mockConnection = new MockConnection(provider);
+        DSLContext dsl = DSL.using(mockConnection);
+    }
+
     @Test
     @SneakyThrows
     public void insertTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
-                Pilot pilot = new Pilot(1000, "Alex", 5000);
+                Pilot pilot = new Pilot(1000, "Alex", 5000, true);
                 Repository.db.pilots.insert(pilot);
 
                 Pilot result = Repository.db.pilots.find(1000);
@@ -45,23 +62,18 @@ public class PilotRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void updateTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
 
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
-                Pilot pilot = new Pilot(1000, "Alex", 5000);
+                Pilot pilot = new Pilot(1000, "Alex", 5000, true);
                 Repository.db.pilots.insert(pilot);
                 pilot.setName("Max");
                 Repository.db.pilots.update(pilot);
@@ -74,23 +86,18 @@ public class PilotRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void findTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
-                Pilot pilot = new Pilot(1000, "Alex", 5000);
+                Pilot pilot = new Pilot(1000, "Alex", 5000, true);
                 Repository.db.pilots.insert(pilot);
 
                 Pilot result = Repository.db.pilots.find(1000);
@@ -101,21 +108,16 @@ public class PilotRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void findAllTest() {
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+     provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 List<Pilot> result = Repository.db.pilots.findAll(Pilots.PILOTS.ID.eq(2));
                 assertThat(result).hasSize(1);
@@ -125,20 +127,15 @@ public class PilotRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 
     @Test
     @SneakyThrows
     public void deleteTest() {
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        MockDataProvider provider = new MockDataProvider() {
+        provider = new MockDataProvider() {
             @Override
             public MockResult[] execute(MockExecuteContext context)
                     throws SQLException {
-                DSLContext dsl = DSL.using(connection);
-                Repository.db.init(dsl);
 
                 Repository.db.pilots.delete(1);
                 assertThat(Repository.db.pilots.find(1)).isNull();
@@ -148,7 +145,5 @@ public class PilotRepositoryTest {
                 };
             }
         };
-        Connection mockConnection = new MockConnection(provider);
-        DSLContext dsl = DSL.using(mockConnection);
     }
 }

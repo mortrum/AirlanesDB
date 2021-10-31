@@ -14,6 +14,6 @@ public class Airport {
     private Integer id;
     private String name;
     private Integer countryId;
-    private List<Flight> flightList;
+    private List<Flight> flights;
 
 }
